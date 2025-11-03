@@ -1,47 +1,71 @@
 package com.example.proyectapplication
 
+
+import androidx.compose.foundation.layout.padding
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.proyectapplication.ui.theme.ProyectApplicationTheme
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.*
+import com.example.proyectapplication.ui.screens.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
-            ProyectApplicationTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+            ProyectApplicationApp()
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun ProyectApplicationApp() {
+    val navController = rememberNavController()
+    Scaffold(
+        bottomBar = { BottomNavigationBar(navController) }
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = "home",
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable("home") { HomeScreen() }
+            composable("carrito") { CarritoScreen() }
+            composable("venta") { VentaScreen() }
+            composable("usuario") { UsuarioScreen() }
+        }
+    }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    ProyectApplicationTheme {
-        Greeting("Android")
+fun BottomNavigationBar(navController: NavHostController) {
+    NavigationBar {
+        NavigationBarItem(
+            icon = { Text("🏠") },
+            label = { Text("Home") },
+            selected = false,
+            onClick = { navController.navigate("home") }
+        )
+        NavigationBarItem(
+            icon = { Text("🛒") },
+            label = { Text("Carrito") },
+            selected = false,
+            onClick = { navController.navigate("carrito") }
+        )
+        NavigationBarItem(
+            icon = { Text("📃") },
+            label = { Text("Venta") },
+            selected = false,
+            onClick = { navController.navigate("venta") }
+        )
+        NavigationBarItem(
+            icon = { Text("👤") },
+            label = { Text("Usuario") },
+            selected = false,
+            onClick = { navController.navigate("usuario") }
+        )
     }
 }
