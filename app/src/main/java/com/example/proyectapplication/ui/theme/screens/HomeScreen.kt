@@ -17,7 +17,6 @@ import com.example.proyectapplication.models.Producto
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
-// Variable para actualizar la UI cuando se agregan productos
     var carritoCount by remember { mutableStateOf(Carro.item.size) }
 
 

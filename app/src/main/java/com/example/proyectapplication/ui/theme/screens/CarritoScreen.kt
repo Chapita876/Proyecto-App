@@ -14,7 +14,6 @@ import com.example.proyectapplication.models.Carro
 
 @Composable
 fun CarritoScreen(modifier: Modifier = Modifier) {
-// Variable para actualizar la UI cuando se vacía o agrega
     var carritoCount by remember { mutableStateOf(Carro.item.size) }
     var total by remember { mutableStateOf(Carro.CalcularPrecio()) }
 
