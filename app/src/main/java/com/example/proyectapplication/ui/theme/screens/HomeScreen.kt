@@ -10,15 +10,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.example.proyectapplication.R
-import com.example.proyectapplication.Utils.DataProvider
-import com.example.proyectapplication.models.Carro
-import com.example.proyectapplication.models.Producto
+import com.example.proyectapplication.R // Asegúrate de que este import sea correcto para tu paquete
+import com.example.proyectapplication.ui.viewmodel.MainViewModel
+// Si tienes un objeto Carro global y quieres seguir usándolo para agregar items, descomenta abajo:
+// import com.example.proyectapplication.models.Carro
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
-    var carritoCount by remember { mutableStateOf(Carro.item.size) }
+fun HomeScreen(viewModel: MainViewModel, modifier: Modifier = Modifier) {
+    // 1. Observamos la lista de productos que viene del ViewModel (Backend/Repo)
+    val productos by viewModel.productos.collectAsState()
 
+    // Nota: Hemos eliminado 'carritoCount' local para evitar el error.
+    // Si quisieras mostrar el contador del carrito, deberías gestionarlo en el ViewModel
+    // o leer el tamaño de tu lista global Carro.item.size si decides mantener esa lógica mixta.
 
     Column(
         modifier = modifier
@@ -26,59 +30,63 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             .padding(16.dp)
     ) {
         Text(
-            text = "🍎 Mercado en línea",
+            text = "🍎 Mercado en línea (MVVM)",
             style = MaterialTheme.typography.headlineMedium
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LazyColumn {
-            items(DataProvider.productosPrueba) { producto: Producto ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                ) {
-                    Row(
+        // Si la lista está vacía (quizás cargando o error), mostramos un mensaje
+        if (productos.isEmpty()) {
+            Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator() // O Text("Cargando productos...")
+            }
+        } else {
+            LazyColumn(modifier = Modifier.weight(1f)) {
+                items(productos) { producto ->
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(vertical = 4.dp)
                     ) {
-                        Image(
-                            painter = painterResource(id = producto.imagen),
-                            contentDescription = producto.nombre,
+                        Row(
                             modifier = Modifier
-                                .size(80.dp)
-                                .padding(end = 8.dp)
-                        )
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Lógica para mostrar imagen: Si viene del backend (URL) vs Local (Recurso)
+                            // Por ahora, como el Repo simulado usa recursos locales (R.drawable...), usamos eso.
+                            val imagen = if (producto.imagen != 0) producto.imagen else R.drawable.placeholder
 
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(text = producto.nombre)
-                            Text(text = "Precio: $${producto.precio}")
-                        }
+                            Image(
+                                painter = painterResource(id = imagen),
+                                contentDescription = producto.nombre,
+                                modifier = Modifier
+                                    .size(80.dp)
+                                    .padding(end = 8.dp)
+                            )
 
-                        Button(onClick = {
-                            val agregado = Carro.AgregarProd(producto)
-                            if (!agregado) {
-                                println("Ups. Este producto ya ha sido agregado")
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(text = producto.nombre, style = MaterialTheme.typography.titleMedium)
+                                Text(text = "Precio: $${producto.precio}", style = MaterialTheme.typography.bodyMedium)
                             }
-                            carritoCount = Carro.item.size
-                        }) {
-                            Text("Agregar")
+
+                            Button(onClick = {
+                                // AQUÍ: Lógica para agregar al carrito.
+                                // Si sigues usando tu objeto global Carro:
+                                // Carro.AgregarProd(producto)
+                                // println("Producto agregado: ${producto.nombre}")
+
+                                // Idealmente, esto debería ser una llamada al ViewModel:
+                                // viewModel.agregarAlCarrito(producto)
+                            }) {
+                                Text("Agregar")
+                            }
                         }
                     }
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Productos en carrito: $carritoCount",
-            style = MaterialTheme.typography.bodyLarge
-        )
     }
-
-
 }

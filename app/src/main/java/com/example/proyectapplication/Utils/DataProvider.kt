@@ -10,7 +10,8 @@ object DataProvider {
         Producto(3, "Zanahoria", 150.0, R.drawable.zanahoria),
         Producto(4, "Mora", 500.0, R.drawable.mora),
         Producto(5, "Palta", 4500.0, R.drawable.paltas),
-        Producto(6, "Anita de Armas", 1000000.0, R.drawable.placeholder)
+        Producto(6, "Anita de Armas", 1000000.0, R.drawable.placeholder),
+        Producto(7, "Limones", 2000.0, R.drawable.limones)
 
     )
 

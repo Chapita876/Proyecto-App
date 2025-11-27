@@ -1,28 +1,46 @@
 package com.example.proyectapplication
 
-
-import androidx.compose.foundation.layout.padding
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.*
-import com.example.proyectapplication.ui.screens.*
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.proyectapplication.data.repository.AppRepository
+import com.example.proyectapplication.ui.screens.CarritoScreen
+import com.example.proyectapplication.ui.screens.ClienteScreen
+import com.example.proyectapplication.ui.screens.HomeScreen
+import com.example.proyectapplication.ui.screens.VentaScreen
+import com.example.proyectapplication.ui.viewmodel.MainViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 1. Inicializamos el Repositorio (simulando API null por ahora)
+        val repository = AppRepository(null)
+
+        // 2. Inicializamos el ViewModel con el repositorio
+        val viewModel = MainViewModel(repository)
+
         setContent {
-            ProyectApplicationApp()
+            // 3. Le pasamos el viewModel a la función principal
+            ProyectApplicationApp(viewModel)
         }
     }
 }
 
+// CORRECCIÓN AQUÍ: Agregamos 'viewModel: MainViewModel' como parámetro
 @Composable
-fun ProyectApplicationApp() {
+fun ProyectApplicationApp(viewModel: MainViewModel) {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = { BottomNavigationBar(navController) }
@@ -32,10 +50,13 @@ fun ProyectApplicationApp() {
             startDestination = "home",
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("home") { HomeScreen() }
+            // Pasamos el viewModel a las pantallas que lo necesitan
+            composable("home") { HomeScreen(viewModel = viewModel) }
             composable("carrito") { CarritoScreen() }
             composable("venta") { VentaScreen() }
-            composable("usuario") { UsuarioScreen() }
+
+            // Usamos ClienteScreen en lugar de UsuarioScreen
+            composable("usuario") { ClienteScreen(viewModel = viewModel) }
         }
     }
 }
@@ -46,7 +67,7 @@ fun BottomNavigationBar(navController: NavHostController) {
         NavigationBarItem(
             icon = { Text("🏠") },
             label = { Text("Home") },
-            selected = false,
+            selected = false, // Puedes mejorar la lógica de selección después
             onClick = { navController.navigate("home") }
         )
         NavigationBarItem(

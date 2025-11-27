@@ -56,6 +56,26 @@ dependencies {
         androidTestImplementation(libs.androidx.compose.ui.test.junit4)
         debugImplementation(libs.androidx.compose.ui.tooling)
         debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+
+        // --- AGREGAR ESTAS ---
+        // Networking (Retrofit)
+        implementation("com.squareup.retrofit2:retrofit:2.9.0")
+        implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+        // ViewModel y LiveData para Compose
+        implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+        implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
+
+        // Coroutines
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+        // Testing (Para cumplir el 80% coverage)
+        testImplementation("junit:junit:4.13.2")
+        testImplementation("org.mockito:mockito-core:5.3.1")
+        testImplementation("org.mockito.kotlin:mockito-kotlin:5.0.0")
+        testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+        testImplementation("androidx.arch.core:core-testing:2.2.0")
     }
 
 }
