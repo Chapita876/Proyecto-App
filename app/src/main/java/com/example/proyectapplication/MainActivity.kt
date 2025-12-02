@@ -14,31 +14,48 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.proyectapplication.data.network.ApiService
 import com.example.proyectapplication.data.repository.AppRepository
 import com.example.proyectapplication.ui.screens.CarritoScreen
 import com.example.proyectapplication.ui.screens.ClienteScreen
 import com.example.proyectapplication.ui.screens.HomeScreen
 import com.example.proyectapplication.ui.screens.VentaScreen
 import com.example.proyectapplication.ui.viewmodel.MainViewModel
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 1. Inicializamos el Repositorio (simulando API null por ahora)
-        val repository = AppRepository(null)
+        // --- CONEXIÓN CON MICROSERVICIOS (SPRING BOOT) ---
 
-        // 2. Inicializamos el ViewModel con el repositorio
+        // 1. Definimos la URL de tu servidor local.
+        // "10.0.2.2" es una dirección especial que usa el Emulador de Android
+        // para referirse a "localhost" de tu computadora.
+        val BASE_URL = "http://10.0.2.2:8080/api/v1/"
+
+        // 2. Configuramos Retrofit para que hable con esa URL
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create()) // Convierte el JSON a tus objetos Kotlin
+            .build()
+
+        // 3. Creamos el servicio de API real
+        val apiService = retrofit.create(ApiService::class.java)
+
+        // 4. Pasamos el servicio real al repositorio
+        val repository = AppRepository(apiService)
+
+        // 5. Inicializamos el ViewModel con el repositorio conectado
         val viewModel = MainViewModel(repository)
 
         setContent {
-            // 3. Le pasamos el viewModel a la función principal
             ProyectApplicationApp(viewModel)
         }
     }
 }
 
-// CORRECCIÓN AQUÍ: Agregamos 'viewModel: MainViewModel' como parámetro
 @Composable
 fun ProyectApplicationApp(viewModel: MainViewModel) {
     val navController = rememberNavController()
@@ -50,12 +67,15 @@ fun ProyectApplicationApp(viewModel: MainViewModel) {
             startDestination = "home",
             modifier = Modifier.padding(innerPadding)
         ) {
-            // Pasamos el viewModel a las pantallas que lo necesitan
+            // Pasamos el viewModel a TODAS las pantallas que lo necesitan
             composable("home") { HomeScreen(viewModel = viewModel) }
-            composable("carrito") { CarritoScreen() }
-            composable("venta") { VentaScreen() }
 
-            // Usamos ClienteScreen en lugar de UsuarioScreen
+            // --- CORRECCIÓN AQUÍ ---
+            // Antes fallaba porque no le pasabas el viewModel
+            composable("carrito") { CarritoScreen(viewModel = viewModel) }
+            composable("venta") { VentaScreen(viewModel = viewModel) }
+            // -----------------------
+
             composable("usuario") { ClienteScreen(viewModel = viewModel) }
         }
     }
@@ -67,7 +87,7 @@ fun BottomNavigationBar(navController: NavHostController) {
         NavigationBarItem(
             icon = { Text("🏠") },
             label = { Text("Home") },
-            selected = false, // Puedes mejorar la lógica de selección después
+            selected = false,
             onClick = { navController.navigate("home") }
         )
         NavigationBarItem(
